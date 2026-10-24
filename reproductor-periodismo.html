@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escuchar artículo</title>
+<style>
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: Arial, sans-serif;
+}
+.player {
+  width: 100%;
+  border: 1px solid #92999b;
+  border-radius: 7px;
+  background: #f4f5f4;
+  padding: 12px 14px;
+  color: #303636;
+}
+.header {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+button {
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 50%;
+  background: #00876a;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+#wave {
+  flex: 1;
+  min-width: 0;
+  height: 43px;
+}
+#time {
+  font-size: 11px;
+  color: #606969;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="player">
+  <div class="header">Escuchar artículo</div>
+  <div class="controls">
+    <button id="play" aria-label="Reproducir">▶</button>
+    <div id="wave"></div>
+    <span id="time">0:00</span>
+  </div>
+</div>
+
+<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+<script>
+const playButton = document.getElementById('play');
+const timeLabel = document.getElementById('time');
+
+const wavesurfer = WaveSurfer.create({
+  container: '#wave',
+  url: 'https://rdvisionnoticiosa.github.io/audios-articulos/periodismo_independiente.mp3',
+  waveColor: '#b0cbc2',
+  progressColor: '#00876a',
+  cursorColor: '#00876a',
+  height: 43,
+  barWidth: 2,
+  barGap: 2,
+  barRadius: 2,
+  normalize: true
+});
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+playButton.addEventListener('click', () => {
+  wavesurfer.playPause();
+});
+
+wavesurfer.on('play', () => {
+  playButton.textContent = '❚❚';
+  playButton.setAttribute('aria-label', 'Pausar');
+});
+
+wavesurfer.on('pause', () => {
+  playButton.textContent = '▶';
+  playButton.setAttribute('aria-label', 'Reproducir');
+});
+
+wavesurfer.on('timeupdate', (currentTime) => {
+  timeLabel.textContent =
+    formatTime(currentTime) + ' / ' +
+    formatTime(wavesurfer.getDuration());
+});
+
+wavesurfer.on('ready', () => {
+  timeLabel.textContent =
+    '0:00 / ' + formatTime(wavesurfer.getDuration());
+});
+
+wavesurfer.on('error', () => {
+  timeLabel.textContent = 'Error al cargar audio';
+});
+</script>
+</body>
+</html>
