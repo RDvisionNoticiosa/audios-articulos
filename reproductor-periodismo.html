@@ -71,7 +71,12 @@ const timeLabel = document.getElementById('time');
 
 const wavesurfer = WaveSurfer.create({
   container: '#wave',
-  url: 'https://rdvisionnoticiosa.github.io/audios-articulos/periodismo_independiente.mp3',
+ 
+url: (() => {
+  const archivo = new URLSearchParams(window.location.search).get('audio') || 'periodismo_independiente.mp3';
+  return 'https://rdvisionnoticiosa.github.io/audios-articulos/' + encodeURIComponent(archivo);
+})(),
+
   waveColor: '#b0cbc2',
   progressColor: '#00876a',
   cursorColor: '#00876a',
