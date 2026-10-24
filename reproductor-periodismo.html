@@ -1,127 +1,28 @@
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Escuchar artículo</title>
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Escuchar artículo</title>
 <style>
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  font-family: Arial, sans-serif;
-}
-.player {
-  width: 100%;
-  border: 1px solid #92999b;
-  border-radius: 7px;
-  background: #f4f5f4;
-  padding: 12px 14px;
-  color: #303636;
-}
-.header {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 9px;
-}
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-button {
-  flex: 0 0 35px;
-  width: 35px;
-  height: 35px;
-  border: none;
-  border-radius: 50%;
-  background: #00876a;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
-}
-#wave {
-  flex: 1;
-  min-width: 0;
-  height: 43px;
-}
-#time {
-  font-size: 11px;
-  color: #606969;
-  white-space: nowrap;
-}
-</style>
-</head>
-<body>
-<div class="player">
-  <div class="header">Escuchar artículo</div>
-  <div class="controls">
-    <button id="play" aria-label="Reproducir">▶</button>
-    <div id="wave"></div>
-    <span id="time">0:00</span>
-  </div>
-</div>
-
-<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
-<script>
-const playButton = document.getElementById('play');
-const timeLabel = document.getElementById('time');
-
-const wavesurfer = WaveSurfer.create({
-  container: '#wave',
- 
-url: (() => {
-  const archivo = new URLSearchParams(window.location.search).get('audio') || 'periodismo_independiente.mp3';
-  return 'https://rdvisionnoticiosa.github.io/audios-articulos/' + encodeURIComponent(archivo);
-})(),
-
-  waveColor: '#b0cbc2',
-  progressColor: '#00876a',
-  cursorColor: '#00876a',
-  height: 43,
-  barWidth: 2,
-  barGap: 2,
-  barRadius: 2,
-  normalize: true
-});
-
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return '0:00';
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return m + ':' + String(s).padStart(2, '0');
-}
-
-playButton.addEventListener('click', () => {
-  wavesurfer.playPause();
-});
-
-wavesurfer.on('play', () => {
-  playButton.textContent = '❚❚';
-  playButton.setAttribute('aria-label', 'Pausar');
-});
-
-wavesurfer.on('pause', () => {
-  playButton.textContent = '▶';
-  playButton.setAttribute('aria-label', 'Reproducir');
-});
-
-wavesurfer.on('timeupdate', (currentTime) => {
-  timeLabel.textContent =
-    formatTime(currentTime) + ' / ' +
-    formatTime(wavesurfer.getDuration());
-});
-
-wavesurfer.on('ready', () => {
-  timeLabel.textContent =
-    '0:00 / ' + formatTime(wavesurfer.getDuration());
-});
-
-wavesurfer.on('error', () => {
-  timeLabel.textContent = 'Error al cargar audio';
-});
-</script>
-</body>
-</html>
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent;font-family:Arial,Helvetica,sans-serif}.player{width:100%;border:1px solid #555;border-radius:8px;background:#202124;padding:11px 14px;color:#eee}.heading{font-size:14px;font-weight:600;margin-bottom:8px}.controls{display:flex;align-items:center;gap:10px}.play{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:transparent;padding:0;cursor:pointer;position:relative;overflow:visible}.play img{display:block;width:44px;height:44px;object-fit:contain}.play:focus-visible{outline:2px solid #53bfa6;outline-offset:3px}.play .state{position:absolute;right:-2px;bottom:-1px;border-radius:50%;background:#006e58;color:#fff;font-size:10px;width:16px;height:16px;display:grid;place-items:center;border:1px solid #fff}.wave{flex:1;min-width:0;height:40px;cursor:pointer}.time{font-size:11px;color:#aaa;white-space:nowrap;font-variant-numeric:tabular-nums}.fallback{display:none;width:100%;height:38px;margin-top:5px}.error{display:none;color:#ccc;font-size:12px;margin-top:5px}@media(max-width:420px){.player{padding:8px}.wave{height:34px}.time{font-size:10px}.controls{gap:6px}}
+</style></head><body>
+<div class="player"><div class="heading">Escuchar artículo</div><div class="controls" id="controls"><button class="play" id="play" type="button" aria-label="Reproducir"><img src="foto_boton_bienvenido.png" alt=""><span class="state" id="state" aria-hidden="true">▶</span></button><div class="wave" id="wave" aria-label="Forma de onda del audio"></div><span class="time" id="time">0:00 / 0:00</span></div><audio id="fallback" class="fallback" controls preload="metadata"></audio><div class="error" id="error">Usa los controles de audio para escuchar el artículo.</div></div>
+<script type="module">
+const base='https://rdvisionnoticiosa.github.io/audios-articulos/';
+const params=new URLSearchParams(location.search);
+const requested=params.get('audio')||'periodismo_15_bloques_musica_un_poco_mas_presente.mp3';
+const file=/^[a-zA-Z0-9_\-.]+\.mp3$/.test(requested)?requested:'periodismo_15_bloques_musica_un_poco_mas_presente.mp3';
+const url=base+encodeURIComponent(file);
+const play=document.getElementById('play'),state=document.getElementById('state'),time=document.getElementById('time'),controls=document.getElementById('controls'),fallback=document.getElementById('fallback'),error=document.getElementById('error');
+fallback.src=url;
+const fmt=n=>Number.isFinite(n)?`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,'0')}`:'0:00';
+function useFallback(){controls.style.display='none';fallback.style.display='block';error.style.display='block'}
+try{
+ const {default:WaveSurfer}=await import('https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.esm.js');
+ const ws=WaveSurfer.create({container:'#wave',url,waveColor:'#b8d4cb',progressColor:'#00876a',cursorColor:'#00876a',height:40,barWidth:2,barGap:2,barRadius:2,normalize:true,interact:true});
+ play.addEventListener('click',()=>ws.playPause());
+ ws.on('ready',()=>{time.textContent=`0:00 / ${fmt(ws.getDuration())}`});
+ ws.on('timeupdate',t=>{time.textContent=`${fmt(t)} / ${fmt(ws.getDuration())}`});
+ ws.on('play',()=>{state.textContent='Ⅱ';play.setAttribute('aria-label','Pausar')});
+ ws.on('pause',()=>{state.textContent='▶';play.setAttribute('aria-label','Reproducir')});
+ ws.on('finish',()=>{state.textContent='▶';play.setAttribute('aria-label','Reproducir')});
+ ws.on('error',useFallback);
+}catch(e){useFallback()}
+</script></body></html>
